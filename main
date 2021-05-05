@@ -1,9 +1,9 @@
 
 //  1B 5b 2F 37 52 1B 5B 38 01 53 1B 5B 04 0E 54
 
-//TRAMA INTERMEDIA \1xB [ / 7 R \1xB [ 8 \x01 S \1xB [ \x04 \x0E T      ----> en codigo ascii
+// TRAMA INTERMEDIA \1xB [ / 7 R \1xB [ 8 \x01 S \1xB [ \x04 \x0E T      ----> en codigo ascii
 // TRAMA INTERMEDIA 0x1B 0x5B 0x2F 0x37 0x52 0x1B 0x5B 0x38 0x01 0x53 0x1B 0x5B 0x04 0x0E 0x54   ----> en hexadecimal
-// TRAMA INTERMEDIA 27 91 47 55 82 27 91 56 1 83 27 91 4 14 84   ----> en decimal 
+
 
 #include <CustomSoftwareSerial.h>
 #include <Arduino.h>
@@ -17,7 +17,7 @@ LiquidCrystal_I2C lcd( 0x27, 16, 2 ); // direccion de memoria 0x20 para proteus 
 const byte ROWS = 4; //four rows
 const byte COLS = 4; //four columns
 
-byte flag = 12;
+
 
 bool estadoEscritura = false;
 
@@ -33,7 +33,7 @@ char keys[ROWS][COLS] = {
   {'4','5','6','B'},
   {'7','8','9','C'},
   {'*','0','#','D'}
-};
+                        };
 
 byte rowPins[ROWS] = {5, 4, 3, 2}; //connect to the row pinouts of the keypad
 byte colPins[COLS] = {9, 8, 7, 6}; //connect to the column pinouts of the keypad
@@ -41,7 +41,7 @@ byte colPins[COLS] = {9, 8, 7, 6}; //connect to the column pinouts of the keypad
 Keypad keypad = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS );
 
 void setup() {
-  pinMode(flag, OUTPUT);
+  
 
   Serial.begin(9600);
   while (!Serial) {
