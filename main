@@ -1,6 +1,7 @@
 // TRAMA INTERMEDIA \1xB [ / 7 R \1xB [ 8 \x01 S \1xB [ \x04 \x0E T      ----> en codigo ascii
 // TRAMA INTERMEDIA 0x1B 0x5B 0x2F 0x37 0x52 0x1B 0x5B 0x38 0x01 0x53 0x1B 0x5B 0x04 0x0E 0x54   ----> en hexadecimal
 // TRAMA INTERMEDIA 27 91 47 55 82 27 91 56 1 83 27 91 4 14 84   ----> en decimal 
+//  1B 5b 2F 37 52 1B 5B 38 01 53 1B 5B 04 0E 54
 
 #include <CustomSoftwareSerial.h>
 #include <Arduino.h>
@@ -18,9 +19,11 @@ byte flag = 12;
 
 byte tramaRX[40];
 byte tramaIntermedia[15] = { 0x1B , 0x5b , 0x2F , 0x37 , 0x52 , 0x1B , 0x5B , 0x38 , 0x01 , 0x53 , 0x1B , 0x5B , 0x04 , 0x0E , 0x54};
-//byte tramaIntermedia[15] = { 27 , 91 , 47 , 55, 82, 27, 91, 56, 1, 83, 27, 91, 4, 14, 84};
-byte j=0;
-byte contador=0;
+
+bool estadoFlag = false;
+int indice = 0 ;
+int contadorTramaIntermedia = 0 ;
+int contadorTramaRX = 0;
 
 char keys[ROWS][COLS] = {
   {'1','2','3','A'},
@@ -77,29 +80,41 @@ void loop()
 
     if (key=='B'){
       customSerial->write("R");
-      lcd.print("B");              // Write testing data
-  }
+      lcd.print("B"); 
+                 
+  } 
 
   if (customSerial->available())
   {
       
-      tramaRX[j]=customSerial->read();
-      j++;
+      tramaRX[indice]=customSerial->read();
+      
 
-      if ( tramaRX[j] == tramaIntermedia[j])
+      if ( tramaRX[indice] == tramaIntermedia[indice]) //si el valor es el mismo
       {
-        contador++;
+        contadorTramaIntermedia++; // sumo al contador de trama intermedia
+        contadorTramaRX++;          // sumo al contador de trama total
       }
-      if ( contador == 14 )
+
+      else                            // si el dato recibido es diferente a la trama intermedia
+       {
+      contadorTramaRX++;              // sumo al contador de trama total
+      contadorTramaIntermedia = 0;   // sumo al contador de trama intermedia
+      //indice = -1 ;                   
+      }
+
+      if ( contadorTramaIntermedia == 15 ) // si el contador de trama intermedia llega a 14, es porque la trama recibida es erronea
       {
-        contador = 0;
-        //j=0;
+        contadorTramaIntermedia = 0 ; // contadores a cero porque la trama siguiente es la buena
+        indice = -1 ;                 // colocamos el indice a -1 porque la trama siguiente es la buena
+        contadorTramaRX = 0 ;         // contadores a cero porque la trama siguiente es la buena
       } 
-      if (( j == 37 ))
+
+      if (( contadorTramaRX == 37 )) // si el contador llega a 37 es porque se ha recibido la trama BUENA correctamente
       {
-        
+      //  estadoFlag = true ;
         digitalWrite(flag,HIGH);
-        j=0; 
+        indice = -1 ;   // colocamos el indice a -1 para lectura de la proxima trama 
         
         
            lcd.setCursor( 0 , 0 );
@@ -115,10 +130,11 @@ void loop()
               lcd.write(tramaRX[i]);
               tramaRX[i]=0;
             }
+      //estadoFlag = false;
       customSerial->flush();
       }
 
-      digitalWrite(flag,LOW);
-      
+  digitalWrite(flag,LOW);
+  indice++;
   }   
 }
