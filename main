@@ -17,7 +17,8 @@ LiquidCrystal_I2C lcd( 0x27, 16, 2 ); // direccion de memoria 0x20 para proteus 
 const byte ROWS = 4; //four rows
 const byte COLS = 4; //four columns
 
-
+byte posicionA = 0;
+byte posicionB = 0;
 
 bool estadoEscritura = false;
 
@@ -88,32 +89,34 @@ void loop()
 
 
            
-           
+           // colocacion del cursor para mostrar en el lcd, recorremos la trama y guardamos las posiciones donde se encuentra el valor H y /n
             for (int i = 0; i < 39; i++)
             {
 
-                if (tramaRX[i] == 0x48 )
+                if (tramaRX[i] == 0x48 )  // H
                 {
-                  lcd.setCursor( 0 , 0 );
-                  for ( int j = i ; j < 20 ; j++ )
-                  {
-                    lcd.write (tramaRX[j+1]);
-                  }
-
+                  posicionA = i ;
                 }
 
 
-                if ( tramaRX[i] == 0x0A )
+                if ( tramaRX[i] == 0x0A )  ///n
                 {
-                  lcd.setCursor( 0 , 1);
-                  for ( int j = i ; j < 39 ; j++ )
-                  {
-                    lcd.write(tramaRX[j+1]);
-                  }
+                  posicionB = i;
                 } 
             } 
 
-           
+           lcd.setCursor(0,0);
+           for (posicionA ; posicionA < 20; posicionA++)
+           {
+             lcd.write(tramaRX[posicionA+1]);
+           }
+
+           lcd.setCursor(0,1);
+            for (posicionB ; posicionB < 40; posicionB++)
+           {
+             lcd.write(tramaRX[posicionB+1]);
+           }
+
            customSerial->flush();
 
       }
