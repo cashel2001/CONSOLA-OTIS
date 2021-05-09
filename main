@@ -1,4 +1,3 @@
-
 //  1B 5b 2F 37 52 1B 5B 38 01 53 1B 5B 04 0E 54
 
 // TRAMA INTERMEDIA \1xB [ / 7 R \1xB [ 8 \x01 S \1xB [ \x04 \x0E T      ----> en codigo ascii
@@ -22,12 +21,12 @@ byte posicionB = 0;
 
 bool estadoEscritura = false;
 
-byte tramaRX[40];
+byte tramaRX[50];
 
 byte tramaIntermedia[15] = { 0x1B , 0x5b , 0x2F , 0x37 , 0x52 , 0x1B , 0x5B , 0x38 , 0x01 , 0x53 , 0x1B , 0x5B , 0x04 , 0x0E , 0x54};
 
 byte indiceTramaRX = 0;
-byte contadorTramaRX = 0;
+byte contadorByteIguales = 0;
 
 char keys[ROWS][COLS] = {
   {'1','2','3','A'},
@@ -66,22 +65,23 @@ void loop()
 
 /////////////////////// RECEPCION DE TRAMA Y MOSTRAR POR LCD /////////////////////////////
 
-  if (customSerial->available() && ( estadoEscritura == false ))
-  {
+  if (customSerial->available() && estadoEscritura == false )  // si hay datos en el buffer
+  {  // en este if entra tantas veces como numero de bytes tenga la trama que envia
 
       tramaRX[indiceTramaRX]=customSerial->read();
       
 
       if ( tramaRX[indiceTramaRX] == tramaIntermedia[indiceTramaRX])
       {
-        contadorTramaRX++;
+        contadorByteIguales++;
       }
-      if ( contadorTramaRX == 14 )
+      if ( contadorByteIguales == 15 )
       {
-        contadorTramaRX = 0;
+        contadorByteIguales = 0;
         
       } 
-      if (( indiceTramaRX == 37 ))
+
+     if (( indiceTramaRX == 37 ))  /// esta condicion tiene que ser la de final de trama
       {
         estadoEscritura = true;
         
@@ -123,8 +123,9 @@ void loop()
 
       estadoEscritura = false;
       
-      indiceTramaRX++;
-  }
+      indiceTramaRX++; // INCREMENTAMOS LA VARIABLE INDICE PARA QUE EL PROXIMO BYTE SE GUARDE EN LA SIGUIENTE POSICION DEL ARRAY
+
+  } // if (serial.avaibable)
 
 //////////////////////////////// PULSACION DE BOTONES ////////////////////////
 
